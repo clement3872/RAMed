@@ -14,7 +14,7 @@ class RAM:
     def add_variable(self, var):
         self.variables.append(var)
 
-    def add_action(self, action):
+    def add_instruction(self, action):
         self.instructions.append(action)
 
 class Variable:
@@ -34,22 +34,40 @@ class Variable:
         if self.type == "number" or adr == None: 
             self.data = new_value
             return self.data
-        elif self.type == "list" or self.type == "str": 
+        elif self.type == "list": 
             self.data[adr] = new_value
             return self.data
-    
-    def push(self, new_value):
-        if self.type=="list":
-            self.data.append(new_value)
-            return self.data
-    
-    def pop(self):
-        if self.type=="list":
-            self.data.pop()
-            return self.data
 
 
-class MovOperation:
+class PushList:
+    def __init__(self, var1, var2, adr1=None):
+        # push var1[@adr1] into var2
+        assert var1.type != "list", f"{var2.name} should NOT be a list"
+        assert var2.type == "list", f"{var2.name} should be a list"
+        self.var1 = var1
+        self.var2 = var2
+        
+        self.adr1 = adr1
+    
+        self.category = "push"
+    
+    def do(self):
+        adr1 = None if self.adr1==None else self.adr1.get()
+        self.var2.data.append(self.var1.get(adr1))
+
+class PopList:
+    def __init__(self, var1):
+        assert var1.type != "list", f"{var2.name} should NOT be a list"
+        assert var2.type == "list", f"{var2.name} should be a list"
+        self.var1 = var1
+    
+        self.category = "push"
+    
+    def do(self):
+        self.var1.data.pop()
+        
+
+class MovInstruction:
     def __init__(self, var1, var2, adr1=None, adr2=None):
         self.var1 = var1
         self.var2 = var2
@@ -63,7 +81,7 @@ class MovOperation:
         adr1 = None if self.adr1==None else self.adr1.get()
         adr2 = None if self.adr2==None else self.adr2.get()
         
-        self.var2.set_data(self.var1.get(self.adr1.get()), self.adr2)
+        self.var2.set_data(self.var1.get(adr1), self.adr2)
         return self.var2.data
 
 
@@ -74,12 +92,10 @@ class MathOperation:
         var are a Variables
         adr are addresses (int)
         """
-
-        assert var1.type == "number" or var1.type == "list", f"{var1.name} is not an number or a list"
-        assert var2.type == "number" or var2.type == "list", f"{var2.name} is not an number or a list"
-        assert var3.type == "number" or var3.type == "list", f"{var3.name} is not an number or a list"
-        assert adr1.type == "number" and adr2.type == "number" and adr3.type == "number", \
-            "all addresses should be of type number"
+        for (var,adr) in zip([var1,var2,var3], [adr1,adr2,adr3]):
+            assert var.type == "number" or var.type == "list", f"{var.name} is not an number or a list"
+            assert (adr==None and var.type=="number") or (adr=="number" and var.type=="list"),\
+                f"{adr.name} is {adr} but {var.name} is {var.type}"
 
         self.var1 = var1
         self.var2 = var2
@@ -98,16 +114,24 @@ class MathOperation:
         adr3 = None if self.adr3==None else self.adr3.get()
 
         if self.operation == 'add':
-            self.var3.set_data(self.var1.get(self.adr1.get()) + self.var2.get(self.adr2.get()), 
-                    self.adr3.get())
+            self.var3.set_data(self.var1.get(adr1) + self.var2.get(adr2), self.adr3)
         elif self.operation == 'sub':
-            self.var3.set_data(self.var1.get(self.adr1.get()) - self.var2.get(self.adr2.get()), 
-                    self.adr3.get())
+            self.var3.set_data(self.var1.get(adr1) - self.var2.get(adr2), self.adr3)
         elif self.operation == 'mult':
-            self.var3.set_data(self.var1.get(self.adr1.get()) * self.var2.get(self.adr2.get()), 
-                    self.adr3.get())
+            self.var3.set_data(self.var1.get(adr1) * self.var2.get(adr2), self.adr3)
         return self.var3.data
 
+
+class JumpInstruction:
+    def __init__(self, var1, adr1=None):
+        self.var1 = var1
+        self.adr1 = adr1
+
+        self.category = "jump"
+
+    def do(self):
+        adr1 = None if self.adr1==None else self.adr1.get()
+        return self.var1.get(adr1)
 
 class JumpCompare:
     # JE, JL, JG
@@ -147,3 +171,14 @@ class JumpCompare:
             if self.var1.get(adr1) > self.var2.get(adr2):
                 return self.var3.get(adr3)
         return 1 
+    
+class OutputDisplay:
+    def __init__(self, var1, adr1=None):
+        self.var1 = var1
+        self.adr1 = adr1
+
+        self.category = "display"
+
+    def do(self):
+        adr1 = None if self.adr1==None else self.adr1.get()
+        print(self.var1.get(adr1))
