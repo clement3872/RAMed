@@ -28,7 +28,7 @@ class RAM:
     
 
     def run(self, mode="verbose"):
-        if mode=="verbose": print("selfing...")
+        if mode=="verbose": print("RAMing...")
         counter = 0
         while self.index < len(self.instructions):
             if mode == "verbose":
@@ -42,7 +42,7 @@ class RAM:
             else:
                 self.index += 1
             counter += 1
-        if mode=="verbose": print("...You got selfed!")
+        if mode=="verbose": print("...You got RAMed!")
 
 
 class Variable:
