@@ -16,6 +16,15 @@ class RAM:
 
     def add_instruction(self, action):
         self.instructions.append(action)
+    
+    def describe(self):
+        print("Variable names:")
+        for el in self.variables:
+            print(el.type, el.name, el.data)
+        print("\nInstruction names:")
+        for inst in self.instructions:
+            print(inst.category)
+        print()
 
 class Variable:
     def __init__(self, name, vtype="number", data=0):
@@ -141,9 +150,10 @@ class JumpCompare:
         var are a Variables
         adr are addresses (int)
         """
-        assert var3.type == "number", f"{var3.name} is not an number"
-        assert adr1.type == "number" and adr2.type == "number" and adr3.type == "number", \
-            "all addresses should be of type number"
+        for (var,adr) in zip([var1,var2,var3], [adr1,adr2,adr3]):
+            #assert var.type == "number" or var.type == "list", f"{var.name} is not an number or a list"
+            assert (adr==None and var.type in ("number", "str")) or (adr=="number" and var.type=="list"),\
+                f"{adr.name} is {adr} but {var.name} is {var.type}"
 
         self.var1 = var1
         self.var2 = var2

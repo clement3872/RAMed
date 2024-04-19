@@ -7,5 +7,7 @@ str pates = "12"
 
 int n = 5 
 int sum = 0
-add(12, n, sum)
+add(sum, n, sum)
+cout("sum = ")
 cout(sum)
+jg("test","test",-3)
