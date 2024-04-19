@@ -160,25 +160,6 @@ def initialise(content):
 
     return ram
 
-def run(ram, mode="verbose"):
-    if mode=="verbose": 
-        ram.describe()
-        print("RAMing...")
-    counter = 0
-    while ram.index < len(ram.instructions):
-        if mode == "verbose":
-            print(f"[Execution step: {counter}] [Cursor position: {ram.index}]",end=" ")
-            print(f"[Instruction category: {ram.instructions[ram.index].category}]")
-            if ram.instructions[ram.index].category == "display":
-                print("[COUT]")
-        res = ram.instructions[ram.index].do()
-        if ram.instructions[ram.index].category == "jump":
-            ram.index += res
-        else:
-            ram.index += 1
-        counter += 1
-    if mode=="verbose": print("...You got RAMed!")
-
 def open_file(filename):
     with open(filename, "r") as f:
         l = f.readlines()
@@ -195,4 +176,5 @@ if __name__ == "__main__":
         ## This is for tests purpuses
         content = open_file("example.ramed")
         ram = initialise(content)
-        run(ram)
+        ram.describe()
+        ram.run()

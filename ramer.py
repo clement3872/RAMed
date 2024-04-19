@@ -25,6 +25,25 @@ class RAM:
         for inst in self.instructions:
             print(inst.category)
         print()
+    
+
+    def run(self, mode="verbose"):
+        if mode=="verbose": print("selfing...")
+        counter = 0
+        while self.index < len(self.instructions):
+            if mode == "verbose":
+                print(f"[Execution step: {counter}] [Cursor position: {self.index}]",end=" ")
+                print(f"[Instruction category: {self.instructions[self.index].category}]")
+                if self.instructions[self.index].category == "display":
+                    print("[COUT]")
+            res = self.instructions[self.index].do()
+            if self.instructions[self.index].category == "jump":
+                self.index += res
+            else:
+                self.index += 1
+            counter += 1
+        if mode=="verbose": print("...You got selfed!")
+
 
 class Variable:
     def __init__(self, name, vtype="number", data=0):
