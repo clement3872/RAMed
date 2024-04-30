@@ -1,13 +1,2 @@
-list input_list = [1,2,3]
-# how to create a string:
-str pates = "12"
-
-# yes, this works, but it may break the RAM:
-# int 12 = 4
-
-int n = 5 
-int sum = 0
-add(sum, n, sum)
-cout("sum = ")
-cout(sum)
-jg(7,sum,-3)
+r1, r2
+add(0,1,r1)

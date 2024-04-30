@@ -70,7 +70,8 @@ class Variable:
 class PushList:
     def __init__(self, var1, var2, adr1=None):
         # push var1[@adr1] into var2
-        assert var1.type != "list", f"{var2.name} should NOT be a list"
+        assert (var1.type == "list" and adr1.type=="number") or (var1.type == "number" and adr1==None)\
+                ,f"{var2.name} is {var2.type} but {var1.name} is {adr1}"
         assert var2.type == "list", f"{var2.name} should be a list"
         self.var1 = var1
         self.var2 = var2
@@ -85,11 +86,11 @@ class PushList:
 
 class PopList:
     def __init__(self, var1):
-        assert var1.type != "list", f"{var2.name} should NOT be a list"
-        assert var2.type == "list", f"{var2.name} should be a list"
+        print(var1)
+        assert var1.type == "list", f"{var1.name} should be a list"
         self.var1 = var1
     
-        self.category = "push"
+        self.category = "pop"
     
     def do(self):
         self.var1.data.pop()
@@ -211,3 +212,9 @@ class OutputDisplay:
     def do(self):
         adr1 = None if self.adr1==None else self.adr1.get()
         print(self.var1.get(adr1))
+
+class SkipLine:
+    def __init__(self):
+        self.category = "display"
+    def do(self):
+        pass

@@ -1,0 +1,4 @@
+var1_type var1_name = var1_data
+var2_type var2_name = var2_data
+...
+# RAM code (instructions)
