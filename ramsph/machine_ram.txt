@@ -1,0 +1,3 @@
+ADD i0,i1,r0
+SUB i3,i4,r0
+ADD i2,i4,r0
