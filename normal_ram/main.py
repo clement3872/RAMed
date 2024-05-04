@@ -71,7 +71,6 @@ def open_ram():
     filename = sys.argv[1] if len(sys.argv)>2 else ""
     if os.path.exists(filename) and os.path.isfile(filename):
         content = open_file(filename)
-        ram = initialise(content)
     else: 
         # print(f"This is not a proper input.")
         # return 1
