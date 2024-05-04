@@ -27,7 +27,8 @@ class RegisterArray:
     
     def get(self, index):
         if type(index) == int:
-            return self.data[index]
+            if index >= self.size: return 0
+            else: return self.data[index]
         elif type(index) == RegisterInt:
             return self.data[index.get()]    
 
