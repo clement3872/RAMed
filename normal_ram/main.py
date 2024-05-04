@@ -54,14 +54,17 @@ def get_instruction(ram, line):
         return ramer.MathOP(var1, var2, var3, adr1, adr2, adr3, instr)
     elif line[:5] == "div2(":
         instr = line[:4]
-        l_args = get_args(line, instr)
+        var1, adr1 = get_args(ram, line, instr)
+        return ramer.Div2(var1, adr1)
     elif line[:3] in ("je(","jl(","jg("):
         instr = line[:2]
-        l_args = get_args(line, instr)
+        var1, adr1, var2, adr2, value, _ = get_args(ram, line, instr)
+        return ramer.JumpLike(var1, var2, adr1, adr2, value, instr)
     elif line[:5] == "jump(":
         instr = line[:4]
-        l_args = get_args(line, instr)
-        instr = ramed.Jump(int(l_args[0]))
+        l_args = get_args(ram, line, instr)
+        instr = ramer.Jump(int(l_args[0]))
+    else: return None
 
     return instr
 
@@ -105,12 +108,14 @@ def open_ram():
 
     ram = ramer.Ram(registers)
 
-    l_instr = []
-    for line in content: 
-        #l_instr.append(get_instruction(ram, line))
-        ram.append_instruction(get_instruction(ram,line))
+    for i in range(len(content)): 
+        ram.append_instruction(get_instruction(ram, content[i]))
 
+    # there is a verbose option:
+    # ram.run(True)
     ram.run()
+
+    # This displays the configuration of the RAM
     print(ram)
 
 if __name__ == "__main__":

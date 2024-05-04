@@ -63,7 +63,7 @@ class MathOP:
         elif type(self.var1) == RegisterInt: v1 = self.var2
         else: v1 = self.var1.get(self.adr1)
 
-        return f"[ {self.op_type}({self.var1}@{self.adr1}, {self.var2}@{self.adr2}, {self.var3}@{self.adr3}) ]"
+        return f"{self.op_type}({self.var1}@{self.adr1}, {self.var2}@{self.adr2}, {self.var3}@{self.adr3})"
 
     def do(self):
         """Applies the instruction"""
@@ -95,7 +95,10 @@ class MathOP:
 
 class Div2:
     """Division by 2 (removes last bit)"""
-    def __init__(self, var1, adr1, value=0):
+    def __init__(self, var1, adr1):
+        assert type(var1) in (RegisterInt, RegisterArray), "var1 in not a RegisterInt or RegisterArray"
+        assert type(adr1) in (RegisterInt, int), "var1 in not a RegisterInt or int"
+
         self.var1 = var1
         self.adr1 = adr1
 
@@ -119,12 +122,15 @@ class Div2:
 
 class JumpLike:
     """JumpLike in (je, gl, jg)"""
-    def __init__(self, op_type, var1, var2, adr1=None, adr2=None, value=1):
+    def __init__(self, var1, var2, adr1=None, adr2=None, value=1, op_type="je"):
         assert type(var1) in (int, RegisterInt, RegisterArray), "var1 in not a int or RegisterInt or RegisterArray"
         assert type(var2) in (int, RegisterInt, RegisterArray), "var2 in not an int or RegisterInt or RegisterArray"
 
         assert type(value) == int, "A jump value should be a int"
         assert value != 0, "A jump should jump a line, not 0"
+
+        self.var1, self.var2 = var1, var2
+        self.adr1, self.adr2 = adr1, adr2
 
         self.value = value
         self.op_type = op_type
@@ -135,7 +141,20 @@ class JumpLike:
 
     def do(self):
         """Applies the instruction"""
-        return self.value
+        if type(self.var1) == int: v1 = self.var1
+        elif type(self.var1) == RegisterInt: v1 = self.var1.value
+        else: v1 = self.var1.get(self.adr1)
+
+        if type(self.var2) == int: v2 = self.var2
+        elif type(self.var2) == RegisterInt: v2 = self.var2.value
+        else: v2 = self.var2.get(self.adr2)
+
+        if (self.op_type=="je" and v1==v2) \
+            or (self.op_type=="jl" and v1<v2) \
+            or (self.op_type=="jg" and  v1>v2):
+            return self.value
+
+        return 1
 
 
 class Jump:
@@ -148,7 +167,7 @@ class Jump:
         self.category = "jump"
 
     def __str__(self):
-        return f"Jump({self.value})"
+        return f"jump({self.value})"
 
     def do(self):
         """Applies the instruction"""
@@ -159,9 +178,12 @@ class Ram:
     def __init__(self, l_reg, l_instr=[]):
         self.registers = l_reg.copy()
         self.instructions = l_instr.copy()
+        self.skipped_lines = []
         self.cursor = 0
+        self.cleared = True # to see if there is a None in self.instructions
 
     def __str__(self):
+        """Display RAM's current configuration"""
         s = "RAM:\n-Registers:\n"
         if len(self.registers) == 0: s += "(None)\n"
 
@@ -178,9 +200,44 @@ class Ram:
         s += f"\nCursor position: {self.cursor}"
         return s
 
+    def solve_issues(self):
+        for i in range(len(self.instructions)):
+            instr = self.instructions[i]
+            if instr != None and instr.category=="jump": 
+                if instr.value>len(self.instructions):
+                    instr.value = len(self.instructions) - i
+                elif instr.value + i < 0:
+                    instr.value -= instr.value + i
+                if instr.value == 1:
+                    self.cleared = False
+                    self.instructions[i] = None
+        self.clear_skipped_lines()
+
+    def clear_skipped_lines(self):
+        """Removes `None` from instructions (can even delete some instructions)"""
+        if not self.cleared:
+            l_index_to_remove = []
+            for j in range(len(self.instructions)):
+                if self.instructions[j] == None:
+                    for i in range(len(self.instructions)):
+                        instr = self.instructions[i]
+                        if instr != None and instr.category == "jump":
+                            if instr.value < 0 and j>=(i + instr.value):
+                                instr.value += 1
+                            elif instr.value > 0 and j>=(i + instr.value):
+                                instr.value -= 1
+                            if instr.value == 0:
+                                self.instructions[i] = None
+                    l_index_to_remove.append(j)
+            l_index_to_remove = reversed(sorted(l_index_to_remove))
+            for index in l_index_to_remove:
+                self.instructions.pop(index)
+            while None in self.instructions: self.clear_skipped_lines()
+            self.cleared = True
+
     def find(self, name):
         for reg in self.registers:
-            if reg.name == name: return reg
+            if reg != None and reg.name == name: return reg
         return None
     
     def print_reg_status(self):
@@ -197,12 +254,16 @@ class Ram:
     def append_instruction(self, instruction):
         """Does what is says"""
         self.instructions.append(instruction)
+        if instruction == None: self.cleared = False
 
     def next(self):
         """Does the next step"""
         self.cursor += self.instructions[self.cursor].do()
 
     def run(self, verbose=False):
+        self.solve_issues()
+        print(self)
+        counter = 0
         print("\nRAMing...")
         if verbose:
             self.print_reg_status()
@@ -211,6 +272,7 @@ class Ram:
             input("\nPress Enter to continue")
         while self.cursor < len(self.instructions):
             self.next()
+            counter += 1
             if verbose:
                 self.print_reg_status()
                 self.print_next()
@@ -219,7 +281,7 @@ class Ram:
         if not verbose: print("(...)")
         out = self.find("o")
         if out != None: print(f"Output register: {out}")
-        print(f"You got RAMed in {self.cursor} steps!\n")
+        print(f"You got RAMed in {counter} steps!\n")
 
 
 if __name__ == "__main__":
