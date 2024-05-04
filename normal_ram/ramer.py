@@ -11,6 +11,9 @@ class RegisterInt:
     
     def __add__(self, reg2):
         return self.value + reg2.value
+
+    def get(self):
+        return self.value
     
     def set(self, new_value):
         self.value = new_value
@@ -182,6 +185,7 @@ class Ram:
         self.skipped_lines = []
         self.cursor = 0
         self.cleared = True # to see if there is a None in self.instructions
+        self.solved = False # same idea for `solve_issues` function
 
     def __str__(self):
         """Display RAM's current configuration"""
@@ -202,17 +206,20 @@ class Ram:
         return s
 
     def solve_issues(self):
-        for i in range(len(self.instructions)):
-            instr = self.instructions[i]
-            if instr != None and instr.category=="jump": 
-                if instr.value>len(self.instructions):
-                    instr.value = len(self.instructions) - i
-                elif instr.value + i < 0:
-                    instr.value -= instr.value + i
-                if instr.value == 1:
-                    self.cleared = False
-                    self.instructions[i] = None
+        if not self.solved:
+            for i in range(len(self.instructions)):
+                instr = self.instructions[i]
+                if instr != None and instr.category=="jump": 
+                    if instr.value>len(self.instructions):
+                        instr.value = len(self.instructions) - i
+                    elif instr.value + i < 0:
+                        instr.value -= instr.value + i
+                    if instr.value == 1:
+                        self.cleared = False
+                        self.instructions[i] = None
+            self.solved = True
         self.clear_skipped_lines()
+        return self
 
     def clear_skipped_lines(self):
         """Removes `None` from instructions (can even delete some instructions)"""
@@ -225,15 +232,15 @@ class Ram:
                         if instr != None and instr.category == "jump":
                             if instr.value < 0 and j>=(i + instr.value):
                                 instr.value += 1
-                            elif instr.value > 0 and j>=(i + instr.value):
+                            elif instr.value > 0 and j<=(i + instr.value):
                                 instr.value -= 1
-                            if instr.value == 0:
+                            if instr.value == 0 or instr.value == 1:
                                 self.instructions[i] = None
                     l_index_to_remove.append(j)
             l_index_to_remove = reversed(sorted(l_index_to_remove))
             for index in l_index_to_remove:
                 self.instructions.pop(index)
-            while None in self.instructions: self.clear_skipped_lines()
+            if None in self.instructions: self.clear_skipped_lines()
             self.cleared = True
 
     def find(self, name):
@@ -255,15 +262,18 @@ class Ram:
     def append_instruction(self, instruction):
         """Does what is says"""
         self.instructions.append(instruction)
+        self.solved = False
         if instruction == None: self.cleared = False
 
     def next(self):
         """Does the next step"""
+        self.solve_issues() # we need to do this in case we run only one instruction
         self.cursor += self.instructions[self.cursor].do()
 
     def run(self, verbose=False):
+        # we need to be sure there is no `None` in `self.instructions` first
         self.solve_issues()
-        print(self)
+
         counter = 0
         print("\nRAMing...")
         if verbose:
@@ -271,6 +281,7 @@ class Ram:
             self.print_next()
             print(f"Cursor: {self.cursor}")
             input("\nPress Enter to continue")
+
         while self.cursor < len(self.instructions):
             self.next()
             counter += 1

@@ -69,9 +69,12 @@ def get_instruction(ram, line):
     return instr
 
 
-def open_ram():
-    # open file of ram code
-    filename = sys.argv[1] if len(sys.argv)>2 else ""
+def open_ram(filename="", verbose="0", question=False):
+    if not question:
+        # open file of ram code
+        filename = sys.argv[1] if len(sys.argv)>2 else ""
+        verbose = sys.argv[2] if len(sys.argv)>2 and sys.argv[2] in ("0","1") else "0"
+
     if os.path.exists(filename) and os.path.isfile(filename):
         content = open_file(filename)
     else: 
@@ -83,7 +86,7 @@ def open_ram():
         inp = ramer.RegisterArray("i",[])
 
     if len(sys.argv)>2:
-        inp = ramer.RegisterArray("i",[int(el) for el in list(sys.argv[2:])])
+        inp = ramer.RegisterArray("i",[int(el) for el in list(sys.argv[3:])])
     inp_s = ramer.RegisterInt("is", inp.size)
     
     for i in range(len(content)):
@@ -111,6 +114,10 @@ def open_ram():
     for i in range(len(content)): 
         ram.append_instruction(get_instruction(ram, content[i]))
 
+    return (verbose=="1", ram)
+
+    ## This is for tests purpuses
+
     # there is a verbose option:
     # ram.run(True)
     ram.run()
@@ -119,4 +126,7 @@ def open_ram():
     print(ram)
 
 if __name__ == "__main__":
-    ram = open_ram()
+    # `mode` is the verbose option, displays every steps, but it's annoying
+    mode, ram = open_ram()
+    print("(RAM at start)", ram)
+    ram.run(mode) # `run` also "optimized" (see the function in ramer.py to see why/how)
