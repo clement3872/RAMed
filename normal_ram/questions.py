@@ -29,6 +29,27 @@ def quest4():
     os.system(f"{py} main.py {ram_word} {verbose} {word}")
     print(f"La o=['nombre de 0', 'nombre de 1'] dans word: {word}")
 
+def quest8():
+    t = """
+    Il n'y a pas besoin de faire de graphe, il suffit de parcourir les
+    instructions et grace a un algorithme recursif (c'est \"equivalent\", en quelque sorte), 
+    nous pouvons savoir quels sont les sommets (instructions) qui ne sont accessibles 
+    (il est donc facile de trouver le complementaire, i.e. les instructions inacessibles)
+    En voici la preuve:
+
+    Affichons une machine ram pour l'exemple:
+    """
+    mode, ram = open_ram(filename=to_opti, verbose="0",question=True)
+    print(t)
+    print(ram)
+    acc = ram.accessibles()
+    print("Indices des instructions accessibles:", acc)
+    inacc = []
+    for i in range(len(ram.instructions)): 
+        if i not in acc:
+            inacc.append(i)
+    print("Indices des instructions inaccessibles:", inacc)
+
 
 def quest9():
     mode, ram = open_ram(filename=to_opti, verbose="0",question=True)
@@ -44,6 +65,7 @@ if __name__ == "__main__":
      - question 2 : 2
      - question 3 : 3
      - question 4 : 4
+     - question 8 : 8
      - question 9 : 9
     """
     print(t)
@@ -53,5 +75,6 @@ if __name__ == "__main__":
     elif nb_question == 2: quest2()
     elif nb_question == 3: quest3()
     elif nb_question == 4: quest4()
+    elif nb_question == 8: quest8()
     elif nb_question == 9: quest9()
     else: print("Wrong number O_O")
