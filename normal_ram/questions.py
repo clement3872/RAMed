@@ -4,6 +4,7 @@ from main import open_ram
 example = "ram_code/example.ramed"
 ram_word = "ram_code/words.ramed"
 to_opti = "ram_code/to_opti.ramed"
+pow_ab = "ram_code/pow_ab.ramed"
 
 def quest1():
     mode, ram = open_ram(filename=example, verbose="0",question=True)
@@ -28,6 +29,15 @@ def quest4():
     verbose = "1"
     os.system(f"{py} main.py {ram_word} {verbose} {word}")
     print(f"La o=['nombre de 0', 'nombre de 1'] dans word: {word}")
+
+def quest51():
+    print(f"Calcule de a**b avec un machine RAM. (verbose: off) (a=5 et b=3) (file: {pow_ab})")
+
+    word = "5 3"
+    py = "python"
+    verbose = "0"
+    os.system(f"{py} main.py {pow_ab} {verbose} {word}")
+    print(f"Representation de la sortie: o=[a**b]")
 
 def quest8():
     t = """
@@ -65,6 +75,7 @@ if __name__ == "__main__":
      - question 2 : 2
      - question 3 : 3
      - question 4 : 4
+     - question 5.1 : 51
      - question 8 : 8
      - question 9 : 9
     """
@@ -75,6 +86,7 @@ if __name__ == "__main__":
     elif nb_question == 2: quest2()
     elif nb_question == 3: quest3()
     elif nb_question == 4: quest4()
+    elif nb_question == 51: quest51()
     elif nb_question == 8: quest8()
     elif nb_question == 9: quest9()
     else: print("Wrong number O_O")
