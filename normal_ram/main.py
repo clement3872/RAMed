@@ -85,7 +85,7 @@ def open_ram(filename="", verbose="0", question=False):
         content = open_file("ram_code/example.ramed")
         inp = ramer.RegisterArray("i",[])
 
-    if len(sys.argv)>2:
+    if len(sys.argv)>2 or question:
         inp = ramer.RegisterArray("i",[int(el) for el in list(sys.argv[3:])])
     inp_s = ramer.RegisterInt("is", inp.size)
     
@@ -129,4 +129,4 @@ if __name__ == "__main__":
     # `mode` is the verbose option, displays every steps, but it's annoying
     mode, ram = open_ram()
     print("(RAM at start)", ram)
-    ram.run(mode) # `run` also "optimized" (see the function in ramer.py to see why/how)
+    ram.run(mode) # `run` also `optimize` (see the function in ramer.py to see why/how)

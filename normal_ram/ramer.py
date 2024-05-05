@@ -1,4 +1,4 @@
-
+import opti
 
 class RegisterInt:
     def __init__(self, name, value=0):
@@ -225,23 +225,28 @@ class Ram:
         """Removes `None` from instructions (can even delete some instructions)"""
         if not self.cleared:
             l_index_to_remove = []
+            l_instr_to_increment = []
+            l_instr_to_decrement = []
             for j in range(len(self.instructions)):
                 if self.instructions[j] == None:
+                    l_index_to_remove.append(j)
                     for i in range(len(self.instructions)):
                         instr = self.instructions[i]
                         if instr != None and instr.category == "jump":
                             if instr.value < 0 and j>=(i + instr.value):
-                                instr.value += 1
+                                l_instr_to_increment.append(i)
                             elif instr.value > 0 and j<=(i + instr.value):
-                                instr.value -= 1
+                                l_instr_to_decrement.append(i)
                             if instr.value == 0 or instr.value == 1:
                                 self.instructions[i] = None
-                    l_index_to_remove.append(j)
             l_index_to_remove = reversed(sorted(l_index_to_remove))
+            for i in l_instr_to_increment: self.instructions[i].value += 1
+            for i in l_instr_to_decrement: self.instructions[i].value -= 1
             for index in l_index_to_remove:
                 self.instructions.pop(index)
             if None in self.instructions: self.clear_skipped_lines()
             self.cleared = True
+        return self
 
     def find(self, name):
         for reg in self.registers:
@@ -270,17 +275,29 @@ class Ram:
         self.solve_issues() # we need to do this in case we run only one instruction
         self.cursor += self.instructions[self.cursor].do()
 
+    def optimize(self):
+        return opti.remove_inacessibles(self)
+
+    def accessibles(self):
+        return opti.get_accessibles(self.instructions)
+
     def run(self, verbose=False):
         # we need to be sure there is no `None` in `self.instructions` first
-        self.solve_issues()
+
+        # self.solve_issues() # thanks to `optimize` it's not really needed...
+        self.optimize()
 
         counter = 0
-        print("\nRAMing...")
         if verbose:
+            print("\nRAM optimized:")
+            print(self)
+            print("\nRAMing...")
             self.print_reg_status()
             self.print_next()
             print(f"Cursor: {self.cursor}")
             input("\nPress Enter to continue")
+        else:
+            print("\nRAMing...")
 
         while self.cursor < len(self.instructions):
             self.next()
