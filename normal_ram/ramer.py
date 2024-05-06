@@ -33,20 +33,20 @@ class RegisterArray:
             if index >= self.size: return 0
             else: return self.data[index]
         elif type(index) == RegisterInt:
-            return self.data[index.get()]    
+            if index.get() >= self.size: return 0
+            else: return self.data[index.get()]    
 
     def set(self, index, new_value):
         # this should not happen
         assert type(new_value) == int, "[RegisterArray.set] type of new_value should be an int" 
 
+        if type(index) == RegisterInt: index = index.get()
+
         while index >= self.size:
             self.size += 1 
             self.data.append(0)
 
-        if type(index) == int:
-            self.data[index] = new_value
-        elif type(index) == RegisterInt:
-            self.data[index.get()] = new_value
+        self.data[index] = new_value
 
 
 class MathOP:
@@ -217,8 +217,9 @@ class Ram:
                     if instr.value == 1:
                         self.cleared = False
                         self.instructions[i] = None
-            self.solved = True
-        self.clear_skipped_lines()
+        if not self.cleared:
+            self.clear_skipped_lines()
+        self.solved = True
         return self
 
     def clear_skipped_lines(self):
@@ -233,9 +234,9 @@ class Ram:
                     for i in range(len(self.instructions)):
                         instr = self.instructions[i]
                         if instr != None and instr.category == "jump":
-                            if instr.value < 0 and j>=(i + instr.value):
+                            if instr.value < 0 and j>=(i + instr.value) and j<i:
                                 l_instr_to_increment.append(i)
-                            elif instr.value > 0 and j<=(i + instr.value):
+                            elif instr.value > 0 and j<=(i + instr.value) and i<j:
                                 l_instr_to_decrement.append(i)
                             if instr.value == 0 or instr.value == 1:
                                 self.instructions[i] = None
@@ -246,6 +247,7 @@ class Ram:
                 self.instructions.pop(index)
             if None in self.instructions: self.clear_skipped_lines()
             self.cleared = True
+            self.solve_issues()
         return self
 
     def find(self, name):
@@ -276,6 +278,7 @@ class Ram:
         self.cursor += self.instructions[self.cursor].do()
 
     def optimize(self):
+        self.solve_issues()
         return opti.remove_inacessibles(self)
 
     def accessibles(self):
@@ -284,7 +287,6 @@ class Ram:
     def run(self, verbose=False):
         # we need to be sure there is no `None` in `self.instructions` first
 
-        # self.solve_issues() # thanks to `optimize` it's not really needed...
         self.optimize()
 
         counter = 0

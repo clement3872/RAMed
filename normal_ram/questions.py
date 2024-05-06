@@ -5,6 +5,7 @@ example = "ram_code/example.ramed"
 ram_word = "ram_code/words.ramed"
 to_opti = "ram_code/to_opti.ramed"
 pow_ab = "ram_code/pow_ab.ramed"
+bubble_sort = "ram_code/bubble_sort.ramed"
 
 def quest1():
     mode, ram = open_ram(filename=example, verbose="0",question=True)
@@ -38,6 +39,15 @@ def quest51():
     verbose = "0"
     os.system(f"{py} main.py {pow_ab} {verbose} {word}")
     print(f"Representation de la sortie: o=[a**b]")
+
+def quest52():
+    word = "3 2 5 -1" # list to sort
+    py = "python"
+    verbose = "0"
+    print(f"Trier un liste de nombres (positifs ou negatifs) (file: {bubble_sort})")
+    print("Trions cette entree:", word)
+    os.system(f"{py} main.py {bubble_sort} {verbose} {word}")
+    print(f"Representation de la sortie: o=['entree triee']")
 
 def quest8():
     t = """
@@ -76,6 +86,7 @@ if __name__ == "__main__":
      - question 3 : 3
      - question 4 : 4
      - question 5.1 : 51
+     - question 5.2 : 52
      - question 8 : 8
      - question 9 : 9
     """
@@ -87,6 +98,7 @@ if __name__ == "__main__":
     elif nb_question == 3: quest3()
     elif nb_question == 4: quest4()
     elif nb_question == 51: quest51()
+    elif nb_question == 52: quest52()
     elif nb_question == 8: quest8()
     elif nb_question == 9: quest9()
     else: print("Wrong number O_O")
