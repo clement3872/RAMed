@@ -1,0 +1,7 @@
+res,count
+add(1,0,res)
+je(count, i@1, 4)
+mult(res, i@0, res)
+add(count,1,count)
+jump(-3)
+add(res,0, o@0)

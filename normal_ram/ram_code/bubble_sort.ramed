@@ -1,0 +1,24 @@
+i0,i1, count, r0,r1
+# i0 = index; i1 = index + 1
+add(0,0,i0)
+add(1,0,i1)
+
+add(0,i@i0,r0)
+add(0,i@i1,r1)
+jl(r0,r1, 3) 
+add(r0,0, i@i1)
+add(r1,0, i@i0)
+add(1,i0,i0)
+add(1,i1,i1)
+
+jl(i1,is, -9)
+add(count,1,count)
+
+# we loop again
+jl(count,is, -21)
+
+# copy to ouput
+add(0,0,i0)
+add(i@i0,0,o@i0)
+add(i0,1,i0)
+jl(i0,is,-2)

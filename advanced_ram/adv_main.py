@@ -180,7 +180,7 @@ if __name__ == "__main__":
         #print("This is not a proper file name.")
 
         ## This is for tests purpuses
-        content = open_file("example.aramed")
+        content = open_file("aram_code/example.aramed")
         ram = initialise(content)
         ram.describe()
         ram.run()
