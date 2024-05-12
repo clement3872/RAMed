@@ -186,6 +186,7 @@ class Ram:
         self.cursor = 0
         self.cleared = True # to see if there is a None in self.instructions
         self.solved = False # same idea for `solve_issues` function
+        self.optimized = False
 
     def __str__(self):
         """Display RAM's current configuration"""
@@ -234,9 +235,9 @@ class Ram:
                     for i in range(len(self.instructions)):
                         instr = self.instructions[i]
                         if instr != None and instr.category == "jump":
-                            if instr.value < 0 and j>=(i + instr.value) and j<i:
+                            if instr.value < 0 and j>(i + instr.value) and j<i:
                                 l_instr_to_increment.append(i)
-                            elif instr.value > 0 and j<=(i + instr.value) and i<j:
+                            elif instr.value > 0 and j<(i + instr.value) and i<j:
                                 l_instr_to_decrement.append(i)
                             if instr.value == 0 or instr.value == 1:
                                 self.instructions[i] = None
@@ -270,6 +271,7 @@ class Ram:
         """Does what is says"""
         self.instructions.append(instruction)
         self.solved = False
+        self.optimized = False
         if instruction == None: self.cleared = False
 
     def next(self):
@@ -278,8 +280,12 @@ class Ram:
         self.cursor += self.instructions[self.cursor].do()
 
     def optimize(self):
-        self.solve_issues()
-        return opti.remove_inacessibles(self)
+        if not self.optimized:
+            self.solve_issues()
+            self.optimized = True
+            return opti.remove_inacessibles(self)
+        else: 
+            return self.solve_issues()
 
     def accessibles(self):
         return opti.get_accessibles(self.instructions)

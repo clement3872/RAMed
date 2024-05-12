@@ -6,6 +6,8 @@ ram_word = "ram_code/words.ramed"
 to_opti = "ram_code/to_opti.ramed"
 pow_ab = "ram_code/pow_ab.ramed"
 bubble_sort = "ram_code/bubble_sort.ramed"
+automate = "ram_code/automate.ramed"
+
 
 def quest1():
     mode, ram = open_ram(filename=example, verbose="0",question=True)
@@ -49,6 +51,22 @@ def quest52():
     os.system(f"{py} main.py {bubble_sort} {verbose} {word}")
     print(f"Representation de la sortie: o=['entree triee']")
 
+def quest6():
+    word = "6 1 1 1 0 0 0 4 0 1 0 1 0 0 1 1 1 0 0 0 1 2 1 1 0 1 2 1"
+    py = "python"
+    verbose = "0"
+    print(f"exemple d'automate qui accepte  - (file: {automate})")
+    os.system(f"{py} main.py {automate} {verbose} {word}")
+    print(f"Representation de la sortie: o=['acceptation']")
+
+def quest7():
+    word = "7 1 1 1 0 0 0 0 4 0 1 0 1 0 0 1 1 1 0 0 0 1 2 1 1 0 1 2 1"
+    py = "python"
+    verbose = "0"
+    print(f"reconnaissance de : (a^n b^n) - (file: {automate})")
+    os.system(f"{py} main.py {automate} {verbose} {word}")
+    print(f"Representation de la sortie: o=['acceptation']")
+
 def quest8():
     t = """
     Il n'y a pas besoin de faire de graphe, il suffit de parcourir les
@@ -87,6 +105,8 @@ if __name__ == "__main__":
      - question 4 : 4
      - question 5.1 : 51
      - question 5.2 : 52
+     - question 6 : 6
+     - question 7 : 7
      - question 8 : 8
      - question 9 : 9
     """
@@ -99,6 +119,8 @@ if __name__ == "__main__":
     elif nb_question == 4: quest4()
     elif nb_question == 51: quest51()
     elif nb_question == 52: quest52()
+    elif nb_question == 6: quest6()
+    elif nb_question == 7: quest7()
     elif nb_question == 8: quest8()
     elif nb_question == 9: quest9()
     else: print("Wrong number O_O")

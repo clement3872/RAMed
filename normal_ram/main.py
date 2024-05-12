@@ -128,5 +128,6 @@ def open_ram(filename="", verbose="0", question=False):
 if __name__ == "__main__":
     # `mode` is the verbose option, displays every steps, but it's annoying
     mode, ram = open_ram()
+    ram.optimize()
     print("(RAM at start)", ram)
     ram.run(mode) # `run` also `optimize` (see the function in ramer.py to see why/how)
