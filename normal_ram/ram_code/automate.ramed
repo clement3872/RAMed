@@ -1,0 +1,67 @@
+state,r0,r1,r2,r3,r4,r5,count
+
+# state = current state (default=0)
+# r0 = word cursor (1 is first letter)
+# r1 = state at index
+# r2 = letter in stack
+# r3 = read stack
+# r4 = what to do in the stack
+# r5 = next state
+# count = stack value
+
+add(1,0,r0)
+
+jg(r0,i@0, 44)
+add(i@0,2,r1)
+add(i@0,3,r2)
+add(i@0,4,r3)
+add(i@0,5,r4)
+add(i@0,6,r5)
+
+jl(r5,is,2)
+jump(45)
+je(state,i@r1, 2)
+jump(16)
+je(i@r0,i@r2, 2)
+jump(14)
+je(i@r3,0,4)
+je(count,i@r3, 6)
+jg(count,i@r3, 5)
+jump(10)
+je(count,i@r3, 3)
+jump(8)
+
+# append
+je(i@r4, 1, 13)
+# pop
+je(i@r4, 2, 17)
+
+# otherwise, increment
+add(r1,5,r1)
+add(r2,5,r2)
+add(r3,5,r3)
+add(r4,5,r4)
+add(r5,5,r5)
+jump(-24)
+
+# appending
+add(count,1,count)
+add(r0,1,r0)
+add(0,i@r5, state)
+jump(-37)
+
+# poping
+sub(count,1,count)
+add(r0,1,r0)
+add(0,i@r5, state)
+jump(-43)
+
+# check stack
+jg(count,0,7)
+
+# exit: output 0 (recognized)
+add(0,0,o@0)
+jump(123)
+
+# exit: output 1 (not recognized)
+add(1,0,o@0)
